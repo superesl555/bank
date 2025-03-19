@@ -1,4 +1,6 @@
 package com.bank.model;
 
-public class CategoryType {
+public enum CategoryType {
+    INCOME, EXPENSE
 }
+
