@@ -50,4 +50,4 @@
 
 2. Убедиться, что у вас установлены Java 21 и Maven
 
-3. Прописать mvn clean install
+3. Прописать `mvn clean install`
