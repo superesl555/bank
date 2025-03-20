@@ -6,11 +6,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 import java.util.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class BankService {
-    private final Map<UUID, BankAccount> accounts = new HashMap<>();
-    private final Map<UUID, Category> categories = new HashMap<>();
-    private final Map<UUID, Operation> operations = new HashMap<>();
+    private Map<UUID, BankAccount> accounts = new HashMap<>();
+    private Map<UUID, Category> categories = new HashMap<>();
+    private Map<UUID, Operation> operations = new HashMap<>();
 
 
     public BankAccount createAccount(String name, BigDecimal initialBalance) {
@@ -41,6 +42,7 @@ public class BankService {
         }
     }
 
+    @JsonIgnore
     public Collection<BankAccount> getAllAccounts() {
         return accounts.values();
     }
@@ -67,6 +69,7 @@ public class BankService {
         return categories.remove(id) != null;
     }
 
+    @JsonIgnore
     public Collection<Category> getAllCategories() {
         return categories.values();
     }
@@ -107,6 +110,7 @@ public class BankService {
         return operations.remove(id) != null;
     }
 
+    @JsonIgnore
     public Collection<Operation> getAllOperations() {
         return operations.values();
     }
@@ -134,5 +138,27 @@ public class BankService {
                         op -> op.getCategory().getName(),
                         Collectors.reducing(BigDecimal.ZERO, Operation::getAmount, BigDecimal::add)
                 ));
+    }
+
+    public Map<UUID, BankAccount> getAccounts() {
+        return accounts;
+    }
+
+    public Map<UUID, Category> getCategories() {
+        return categories;
+    }
+
+    public Map<UUID, Operation> getOperations() {
+        return operations;
+    }
+
+    public void loadData(BankService data) {
+        this.accounts.clear();
+        this.categories.clear();
+        this.operations.clear();
+
+        this.accounts.putAll(data.getAccounts());
+        this.categories.putAll(data.getCategories());
+        this.operations.putAll(data.getOperations());
     }
 }
