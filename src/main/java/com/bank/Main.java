@@ -1,49 +1,27 @@
 package com.bank;
-import com.bank.model.*;
-import com.bank.service.*;
 
+import com.bank.io.CsvSerializer;
+import com.bank.io.JsonSerializer;
+import com.bank.io.YamlSerializer;
+import com.bank.model.BankAccount;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) {
-        BankService bankService = new BankService();
+        // Создаем тестовые данные
+        BankAccount account1 = new BankAccount("Основной счет", new BigDecimal("10000"));
+        BankAccount account2 = new BankAccount("Сберегательный счет", new BigDecimal("50000"));
+        List<BankAccount> accounts = List.of(account1, account2);
 
-        // Создаем счета
-        BankAccount mainAccount = bankService.createAccount("Основной счет", BigDecimal.valueOf(1000));
+        // Экспорт данных
+        new CsvSerializer().serialize("accounts.csv", accounts);
+        new JsonSerializer().serialize("accounts.json", accounts);
+        new YamlSerializer().serialize("accounts.yaml", accounts);
 
-        // Создаем категории
-        Category salaryCategory = bankService.createCategory(CategoryType.INCOME, "Зарплата");
-        Category cafeCategory = bankService.createCategory(CategoryType.EXPENSE, "Кафе");
-        Category healthCategory = bankService.createCategory(CategoryType.EXPENSE, "Здоровье");
-
-        // Добавляем операции
-        bankService.createOperation(OperationType.INCOME, mainAccount.getId(), BigDecimal.valueOf(3000), LocalDate.of(2024, 3, 1), "Зарплата", salaryCategory.getId());
-        bankService.createOperation(OperationType.EXPENSE, mainAccount.getId(), BigDecimal.valueOf(400), LocalDate.of(2024, 3, 3), "Обед в кафе", cafeCategory.getId());
-        bankService.createOperation(OperationType.EXPENSE, mainAccount.getId(), BigDecimal.valueOf(600), LocalDate.of(2024, 3, 5), "Лекарства", healthCategory.getId());
-
-        // Обновление счета
-        bankService.updateAccountName(mainAccount.getId(), "Личный счет");
-        bankService.updateAccountBalance(mainAccount.getId(), BigDecimal.valueOf(5000));
-
-        // Обновление категории
-        bankService.updateCategoryName(cafeCategory.getId(), "Рестораны");
-
-        // Обновление операции (меняем сумму и описание)
-        UUID someOperationId = bankService.getAllOperations().iterator().next().getId();
-        bankService.updateOperation(someOperationId, OperationType.INCOME, mainAccount.getId(), BigDecimal.valueOf(3500), LocalDate.of(2024, 3, 1), "Повышенная зарплата", salaryCategory.getId());
-
-        // Подсчет баланса за период
-        BigDecimal balanceDiff = bankService.calculateBalanceDifference(LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 31));
-        System.out.println("Разница доходов и расходов за март 2024: " + balanceDiff);
-
-        // Группировка доходов и расходов по категориям
-        Map<String, BigDecimal> groupedOperations = bankService.groupOperationsByCategory(LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 31));
-        System.out.println("\nСуммы по категориям:");
-        for (Map.Entry<String, BigDecimal> entry : groupedOperations.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
+        // Импорт данных
+        List<BankAccount> importedAccounts = new JsonSerializer().deserialize("accounts.json", BankAccount.class);
+        importedAccounts.forEach(acc -> System.out.println("Импортирован счет: " + acc.getName()));
     }
 }

@@ -1,15 +1,22 @@
 package com.bank.model;
 
+import com.opencsv.bean.CsvBindByName;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class BankAccount {
-    private final UUID id;
+    @CsvBindByName
+    private final UUID id = UUID.randomUUID();
+
+    @CsvBindByName
     private String name;
+
+    @CsvBindByName
     private BigDecimal balance;
 
+    public BankAccount() {}
+
     public BankAccount(String name, BigDecimal initialBalance) {
-        this.id = UUID.randomUUID();
         this.name = name;
         this.balance = initialBalance;
     }
